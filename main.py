@@ -1,11 +1,41 @@
 from dotenv import load_dotenv
-import os
+
+from langchain_core.messages import HumanMessage
+from langgraph.graph import MessagesState, StateGraph, END
+
+from nodes import run_agent_reasoning, tool_node    # from nodes.py
 
 load_dotenv()
 
-def main():
-    print("Hello ReAct Langgraph with Function Calling!")
+AGENT_REASON = "agent_reason"
+ACT = "act"
+LAST = -1       # index for referencing the last message between the user and agent
 
+# helper function to create conditional edge later
+def should_continue(state: MessagesState)   -> str:
+    if not state["messages"][LAST].tool_calls:
+        return END 
+    return ACT      # react loop: continue to act if there was a tool call, end otherwise
+
+# implement the state graph
+flow = StateGraph(MessagesState)
+
+flow.add_node(AGENT_REASON, run_agent_reasoning)
+flow.set_entry_point(AGENT_REASON)      # specifies first node to be called in a graph
+flow.add_node(ACT, tool_node)
+
+flow.add_conditional_edges(AGENT_REASON, should_continue, {
+    END: END,
+    ACT: ACT
+})
+flow.add_edge(ACT, AGENT_REASON)
+
+app = flow.compile()
+app.get_graph().draw_mermaid_png(output_file_path="flow.png")      # display the react flow graph
 
 if __name__ == "__main__":
-    main()
+    print("Hello ReAct LangGraph with Function Calling")
+    res = app.invoke({
+        "messages": [HumanMessage(content="What is the temperature in Vienna? List it and then triple it")]
+    })
+    print(res["messages"][LAST].content)
