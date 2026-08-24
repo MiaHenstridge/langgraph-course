@@ -7,7 +7,7 @@ reflection_prompt = ChatPromptTemplate.from_messages(
     messages=[
         (
             "system",
-            "You are a viral twitter LinkedIn influencer grading a post. Generate critique and recommendations for the user's LinkedIn post."
+            "You are a viral LinkedIn influencer grading a post. Generate critique and recommendations for the user's LinkedIn post."
             "Always provide detailed recommendations, including requests for length, virality, style, etc.",
         ),
         MessagesPlaceholder(variable_name="messages"),      # placeholder for history messages
