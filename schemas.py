@@ -13,4 +13,8 @@ class AnswerQuestion(BaseModel):
     answer: str = Field(description="250 world detailed answer to the question")
     reflection: Reflection = Field(description="Your reflection on the initial answer")
     search_queries: List[str] = Field(description="1-3 search queries for research improvements to address the critique of your current answer")
-    
+
+
+class ReviseAnswer(AnswerQuestion):
+    """Revised answer after reflection"""
+    references: List[str] = Field(description="Citations motivating the updated answer")
