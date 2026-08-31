@@ -69,9 +69,6 @@ revisor = actor_prompt_template.partial(
 ) | llm.bind_tools(tools=[ReviseAnswer], tool_choice="ReviseAnswer")
 
 
-# ------- Tool Executor (ToolNode)
-
-
 if __name__ == "__main__":
     # define topic of the task
     human_message = HumanMessage(
