@@ -24,7 +24,7 @@ def revise_node(state: MessagesState):
     """Revise the answer based on tool results"""
     # invoke revisor chain and invoke with all messages so far
     response = revisor.invoke({"messages": state["messages"]})
-    return {"message": [response]}      # append response to the graph state
+    return {"messages": [response]}      # append response to the graph state
 
 
 # --------- Event loop for tool execution
@@ -55,6 +55,24 @@ graph = builder.compile()
 
 graph.get_graph().draw_mermaid_png(output_file_path="reflexion_agent.png")
 
+# invoke graph
+res = graph.invoke(
+    {
+        "messages": [
+            {
+                "role": "user",
+                "content": "Write about Graph Neural Networks,"
+                            " List their application domains"
+            },
+        ]
+    }
+)
 
-if __name__ == "__main__":
-    print("Hello Reflexion Agent")
+
+# extract the final answer from the last message with tool calls
+last_message = res["messages"][-1]  # will be an AIMessage with revised message
+
+if isinstance(last_message, AIMessage) and last_message.tool_calls:
+    print(last_message.tool_calls[0]['args']['answer'])
+
+print(res)
