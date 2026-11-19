@@ -15,3 +15,15 @@ def test_retrieval_grader_answer_yes() -> None:
     )
     # assert the binary result is 'yes'
     assert res.binary_score == "yes"
+
+
+def test_retrieval_grader_answer_no() -> None:
+    question = "agent memory"
+    docs = retriever.invoke(question)
+    doc_txt = docs[0].page_content
+    # use retrieval grader with a different question to have the grader return no
+    res: GradeDocuments = retrieval_grader.invoke(
+        {"question": "how to make pizza", "document": doc_txt},
+    )
+    # assert the binary result is 'no'
+    assert res.binary_score == "no"
