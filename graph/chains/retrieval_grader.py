@@ -33,4 +33,5 @@ grade_prompt = ChatPromptTemplate.from_messages(
     ]
 )
 
+# create the chain by taking the grade prompt and pipe it to the llm
 retrieval_grader = grade_prompt | structured_llm_grader
