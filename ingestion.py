@@ -24,13 +24,13 @@ text_splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
 
 doc_splits = text_splitter.split_documents(docs_list)
 
-# ingest into ChromaDB
-vectorstore = Chroma.from_documents(
-    documents=doc_splits,
-    collection_name="rag-chroma",
-    embedding=OpenAIEmbeddings(),
-    persist_directory="./chroma"
-)
+# # ingest into ChromaDB
+# vectorstore = Chroma.from_documents(
+#     documents=doc_splits,
+#     collection_name="rag-chroma",
+#     embedding=OpenAIEmbeddings(),
+#     persist_directory="./chroma"
+# )
 
 # retriever object
 retriever = Chroma(
