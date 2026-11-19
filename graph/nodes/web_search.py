@@ -16,7 +16,7 @@ def web_search(state: GraphState) -> Dict[str, Any]:
 
     tavily_results = web_search_tool.invoke({"query": question})
     joined_tavily_result = "\n".join(
-        [res["content"] for res in tavily_results]
+        [res["content"] for res in tavily_results["results"]]
     )
     web_results = Document(page_content=joined_tavily_result)   # create a document from the search result
     if documents is not None:
