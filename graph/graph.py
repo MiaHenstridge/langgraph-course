@@ -5,6 +5,8 @@ load_dotenv()
 from langgraph.graph import END, StateGraph
 from graph.consts import RETRIEVE, GRADE_DOCUMENTS, GENERATE, WEB_SEARCH
 from graph.nodes import retrieve, grade_documents, generate, web_search
+from graph.chains.hallucination_grader import hallucination_grader
+from graph.chains.answer_grader import answer_grader
 from graph.state import GraphState
 
 
@@ -18,6 +20,34 @@ def decide_to_generate(state: GraphState):
     else:
         print("---DECISION: GENERATE---")
         return GENERATE
+
+# conditional edge to grade hallucinations 
+# and answer addressing the question
+def grade_generation_grounded_in_documents_and_question(state: GraphState) -> str:
+    print("---CHECK HALLUCINATIONS---")
+    question = state["question"]
+    generation = state["generation"]
+    documents = state["documents"]
+
+    score = hallucination_grader.invoke(
+        {"documents": documents, "generation": generation}
+    )
+    if hallucination_grade := score.binary_score:
+        print("---DECISION: GENERATION IS GROUNDED IN DOCUMENTS---")
+        print("---GRADE GENERATION vs. QUESTION---")
+        score = answer_grader.invoke(
+            {"question": question, "generation": generation}
+        )
+        if answer_grade := score.binary_score:
+            print("---DECISION: GENERATION ADDRESSES QUESTION---")
+            return "useful"
+        else:
+            print("---DECISION: GENERATION DOES NOT ADDRESS QUESTION---")
+            return "not useful"
+    else:
+        print("---DECISION: GENERATION IS NOT GROUNDED IN DOCUMENTS, REGENERATE---")
+        return "not supported"
+
 
 # create the workflow
 workflow = StateGraph(GraphState)
@@ -35,6 +65,15 @@ workflow.add_conditional_edges(
     path_map={
         WEB_SEARCH: WEB_SEARCH,
         GENERATE: GENERATE
+    }
+)
+workflow.add_conditional_edges(
+    GENERATE,
+    grade_generation_grounded_in_documents_and_question,
+    path_map={
+        "useful": END,
+        "not useful": WEB_SEARCH,
+        "not supported": GENERATE,
     }
 )
 workflow.add_edge(WEB_SEARCH, GENERATE)
