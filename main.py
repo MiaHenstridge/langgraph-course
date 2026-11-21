@@ -6,4 +6,4 @@ from graph.graph import app
 
 if __name__ == "__main__":
     print("Hello advanced RAG")
-    print(app.invoke(input={"question": "What is agent memory?"}))
+    print(app.invoke(input={"question": "How to make pizza?"}))

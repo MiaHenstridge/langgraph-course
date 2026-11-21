@@ -12,7 +12,7 @@ web_search_tool = TavilySearch(max_results=3)
 def web_search(state: GraphState) -> Dict[str, Any]:
     print("---WEB SEARCH---")
     question = state["question"]
-    documents = state["documents"]
+    documents = state.get("documents")  # absent when the router sends the question straight here
 
     tavily_results = web_search_tool.invoke({"query": question})
     joined_tavily_result = "\n".join(
