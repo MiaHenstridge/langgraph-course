@@ -7,7 +7,7 @@ from langchain_openai import ChatOpenAI
 
 class RouteQuery(BaseModel):
     """Route a user query to the most relevant datasource"""
-    datasource: Literal["vectorestore", "websearch"] = Field(
+    datasource: Literal["vectorstore", "websearch"] = Field(
         default=...,
         description="Given a user question choose to route it to websearch or a vectorstore"
     )
